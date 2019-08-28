@@ -1,0 +1,49 @@
+version: "3"
+services:
+  node:
+    container_name: node_server
+    build: '.'
+    ports:
+      - "8085:3000"
+    depends_on:
+      - mongo1
+      - mongo2
+    links:
+      - mongo1
+      - mongo2
+  mongo1:
+    container_name: mongo1
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/db-mongo-1:/data/db
+  mongo2:
+    container_name: mongo2
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - ./data/db-mongo-2:/data/db
+  mongo-express-1:
+    image: mongo-express
+    ports:
+      - 8081:8081      
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo1
+      - ME_CONFIG_MONGODB_PORT=27017      
+    links:
+      - mongo1
+    depends_on:
+      - mongo1
+  mongo-express-2:
+    image: mongo-express
+    ports:
+      - 8082:8081
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo2
+      - ME_CONFIG_MONGODB_PORT=27017     
+    links:
+      - mongo2
+    depends_on:
+      - mongo2
